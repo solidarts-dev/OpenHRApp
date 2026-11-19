@@ -1,9 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle2, MapPin, LogOut } from 'lucide-react';
 
 // Hooks
-import { useCamera } from '../hooks/attendance/useCamera';
 import { useGeoLocation } from '../hooks/attendance/useGeoLocation';
 import { useAttendance } from '../hooks/attendance/useAttendance';
 import { useSubscription } from '../context/SubscriptionContext';
@@ -12,7 +11,6 @@ import { NO_LOCATION_ADDRESS, addNoLocationRemark, buildNoLocationRemarks, strip
 
 // UI Components
 import { AttendanceHeader } from '../components/attendance/AttendanceHeader';
-import { CameraFeed } from '../components/attendance/CameraFeed';
 import { LocationDisplay } from '../components/attendance/LocationDisplay';
 import { AttendanceActions } from '../components/attendance/AttendanceActions';
 
@@ -31,12 +29,6 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
   } = useAttendance(user, onFinish);
 
   const {
-    videoRef, stream, error: cameraError, facingMode, isTorchOn,
-    startCamera, stopCamera, toggleCamera, toggleTorch, takeSelfie,
-    takePhoto, loading: cameraLoading
-  } = useCamera();
-
-  const {
     location, isLocating, error: locationError, failure: locationFailure, diagnostics: locationDiagnostics, detectLocation
   } = useGeoLocation();
 
@@ -47,11 +39,8 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
   // 2. Local UI State
   const [remarks, setRemarks] = useState('');
   const [dutyType, setDutyType] = useState<'OFFICE' | 'FACTORY'>('OFFICE');
-  const [isMobile, setIsMobile] = useState(false);
-  const [fallbackPhoto, setFallbackPhoto] = useState<string | null>(null);
   const [skipLocationChosen, setSkipLocationChosen] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const cameraInitialized = useRef(false);
+  const locationInitialized = useRef(false);
 
   // Check-out does not save a location, so it never waits for one.
   const isCheckOut = !!activeRecord && !activeRecord.checkOut;
@@ -78,17 +67,12 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
     }
   }, [location, skipLocationChosen]);
 
-  // 3. Initialize hardware once when data is ready
+  // 3. Look up the location once when data is ready (no camera: selfies are not used)
   useEffect(() => {
-    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
-  }, []);
-
-  useEffect(() => {
-    if (isLoading || cameraInitialized.current) return;
-    cameraInitialized.current = true;
+    if (isLoading || locationInitialized.current) return;
+    locationInitialized.current = true;
 
     if (!isCheckOut) detectLocation(true);
-    startCamera('user');
   }, [isLoading]);
 
   // Update duty type when autoStart or activeRecord changes (no camera restart)
@@ -98,11 +82,6 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
   }, [autoStart, activeRecord?.dutyType]);
 
   // 4. Handlers
-  const handleTakePhoto = async () => {
-    const photo = await takePhoto();
-    if (photo) setFallbackPhoto(photo);
-  };
-
   const handlePunchSubmit = async () => {
     if (!canPunch) {
       if (subscription?.status === 'EXPIRED') {
@@ -125,39 +104,20 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
 
     if (status !== 'idle' || !locationReady) return;
 
-    let selfieData: string | null = null;
-
-    // Try live stream first, then fallback photo
-    if (stream && canvasRef.current) {
-      selfieData = takeSelfie(canvasRef.current);
-    } else if (fallbackPhoto) {
-      selfieData = fallbackPhoto;
-    } else {
-      // No photo at all — try taking one now
-      selfieData = await takePhoto();
-      if (selfieData) setFallbackPhoto(selfieData);
-    }
-
-    if (!selfieData) return;
-
     if (withoutLocation) {
       await submitPunch(
         dutyType,
         buildNoLocationRemarks(locationFailure || 'unknown', remarks, locationDiagnostics),
-        { lat: 0, lng: 0, address: NO_LOCATION_ADDRESS },
-        selfieData
+        { lat: 0, lng: 0, address: NO_LOCATION_ADDRESS }
       );
     } else {
-      await submitPunch(dutyType, remarks, isCheckOut ? null : location, selfieData);
+      await submitPunch(dutyType, remarks, isCheckOut ? null : location);
     }
   };
 
   const handleBack = () => {
-    stopCamera();
     if (onFinish) onFinish();
   };
-
-  const hasPhoto = !!stream || !!fallbackPhoto;
 
   if (isLoading) return <div className="h-screen flex items-center justify-center bg-white"><Loader2 className="animate-spin text-blue-600" size={48} /></div>;
 
@@ -170,29 +130,32 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
       />
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 min-h-0">
-        <CameraFeed
-          videoRef={videoRef}
-          stream={stream}
-          error={cameraError}
-          facingMode={facingMode}
-          isMobile={isMobile}
-          isTorchOn={isTorchOn}
-          toggleTorch={toggleTorch}
-          toggleCamera={toggleCamera}
-          showSuccess={status === 'success'}
-          fallbackPhoto={fallbackPhoto}
-          onTakePhoto={handleTakePhoto}
-          photoLoading={cameraLoading}
-        >
+        <div className="relative w-full max-w-[280px] aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-slate-900 shadow-2xl ring-8 ring-white flex flex-col items-center justify-center text-center px-6">
+          <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-4">
+            {isCheckOut ? <LogOut size={36} className="text-amber-300" /> : <MapPin size={36} className="text-emerald-300" />}
+          </div>
+          <p className="text-white text-sm font-semibold uppercase tracking-widest">
+            {isCheckOut ? 'Ready to check out' : 'Ready to check in'}
+          </p>
           {!isCheckOut && status !== 'success' && (
-            <LocationDisplay
-              location={location}
-              isLocating={isLocating}
-              error={locationError}
-              onRetry={() => detectLocation(true)}
-            />
+            <div className="absolute inset-x-0 top-6 flex flex-col items-center">
+              <LocationDisplay
+                location={location}
+                isLocating={isLocating}
+                error={locationError}
+                onRetry={() => detectLocation(true)}
+              />
+            </div>
           )}
-        </CameraFeed>
+          {status === 'success' && (
+            <div className="absolute inset-0 bg-emerald-600/95 flex flex-col items-center justify-center z-10 animate-in zoom-in">
+              <div className="p-4 bg-white rounded-full shadow-2xl mb-4">
+                <CheckCircle2 size={48} className="text-emerald-500 animate-bounce" />
+              </div>
+              <h3 className="text-xl font-semibold text-white uppercase tracking-widest">Done</h3>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Subscription Warning Banner */}
@@ -218,10 +181,9 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
         canSkipLocation={canSkipLocation}
         withoutLocation={withoutLocation}
         onToggleWithoutLocation={handleToggleWithoutLocation}
-        isDisabled={!canPunch || !locationReady || (!isCheckOut && isLocating) || status !== 'idle' || !hasPhoto || factoryInputMissing || (withoutLocation && !remarks.trim())}
+        isDisabled={!canPunch || !locationReady || (!isCheckOut && isLocating) || status !== 'idle' || factoryInputMissing || (withoutLocation && !remarks.trim())}
       />
 
-      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 };
