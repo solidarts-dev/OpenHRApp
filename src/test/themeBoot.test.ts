@@ -23,7 +23,7 @@ const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const indexCss = fs.readFileSync(path.join(root, 'src/index.css'), 'utf8');
 const themeContext = fs.readFileSync(path.join(root, 'src/context/ThemeContext.tsx'), 'utf8');
 
-const BRAND = { primary: '#4a6fa5', hover: '#3b5d8c', light: '#d4e4f7' };
+const BRAND = { primary: '#9C0021', hover: '#7A001A', light: '#FBEAED' };
 
 describe('brand colour is defined once, in CSS', () => {
   it('sets the brand custom properties on :root', () => {
