@@ -76,7 +76,7 @@ export const useAttendance = (user: any, onFinish?: () => void) => {
     dutyType: 'OFFICE' | 'FACTORY',
     remarks: string,
     location: { lat: number; lng: number; address: string } | null,
-    selfieData: string
+    selfieData?: string
   ) => {
     setStatus('loading');
     try {
@@ -118,7 +118,7 @@ export const useAttendance = (user: any, onFinish?: () => void) => {
           checkIn: punchTime, 
           status: punchStatus, 
           location: location ?? undefined,
-          selfie: selfieData,
+          selfie: selfieData || undefined,
           remarks: dutyType === 'FACTORY' ? `[FACTORY] ${remarks}` : remarks,
           dutyType: dutyType
         });
