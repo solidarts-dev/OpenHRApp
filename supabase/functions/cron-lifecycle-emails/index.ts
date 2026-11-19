@@ -18,7 +18,7 @@ import { generate, LlmProvider } from '../_shared/llm.ts';
 import { signUnsubscribe } from '../_shared/unsubscribe.ts';
 import { renderEmail, styleInlineContent } from '../_shared/emailLayout.ts';
 
-const FROM_EMAIL = 'OpenHRApp <noreply@openhrapp.com>';
+const FROM_EMAIL = Deno.env.get('EMAIL_FROM') ?? 'Solid Arts HR <noreply@solidarts.co.zw>';
 const APP_URL = 'https://openhrapp.com';
 
 function json(status: number, body: unknown) {
