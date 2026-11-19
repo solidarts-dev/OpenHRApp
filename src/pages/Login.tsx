@@ -16,11 +16,12 @@ declare global {
 }
 
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, ArrowRight, AlertCircle, RefreshCw, Eye, EyeOff, Download, X, Share, MoreVertical, RotateCcw, Building2, Send, Home, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, RefreshCw, Eye, EyeOff, Download, X, Share, MoreVertical, RotateCcw, Send, Home, CheckCircle2 } from 'lucide-react';
 import { hrService } from '../services/hrService';
 import { authService } from '../services/auth.service';
 import { isSupabaseConfigured } from '../services/supabase';
 import { useToast } from '../context/ToastContext';
+import { BRAND } from '../config/brand';
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
@@ -31,28 +32,21 @@ interface LoginProps {
 
 const BrandLogo = () => (
   <div className="flex flex-col items-center justify-center gap-6">
-    <div className="relative w-24 h-24 md:w-32 md:h-32">
-      <div className="absolute inset-0 bg-primary-light blur-[50px] rounded-full -z-10 opacity-50"></div>
-      <div className="relative w-full h-full bg-white rounded-[1.75rem] shadow-xl flex items-center justify-center p-4 border-2 border-primary/20">
-        <img
-          src="/img/logo.webp"
-          className="w-full h-full object-contain"
-          alt="OpenHRApp Logo"
-        />
-      </div>
+    <div className="rounded-2xl shadow-xl px-6 py-4" style={{ backgroundColor: BRAND.colors.crimson }}>
+      <img
+        src={BRAND.logoWhite}
+        className="h-12 md:h-14 w-auto object-contain"
+        alt={`${BRAND.companyName} logo`}
+      />
     </div>
     <div className="text-center">
-      <h1 className="text-3xl md:text-4xl font-semibold tracking-tighter flex items-center justify-center">
-        <span className="text-primary">Open</span>
-        <span className="text-[#f59e0b]">HR</span>
-        <span className="text-[#10b981]">App</span>
-      </h1>
-      <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-1">Personnel Gateway</p>
+      <h1 className="text-2xl md:text-3xl font-bold tracking-tight" style={{ color: BRAND.colors.navy }}>{BRAND.portalTitle}</h1>
+      <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-1">{BRAND.companyName}</p>
     </div>
   </div>
 );
 
-const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, onBackToLanding, initError }) => {
+const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initError }) => {
   const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -522,14 +516,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, onBackTo
                   Forgot Password?
                 </button>
 
-                <button
-                  type="button"
-                  onClick={onRegisterClick}
-                  className="w-full py-3 bg-slate-50 text-slate-600 border border-slate-200 rounded-xl font-semibold text-[10px] uppercase tracking-widest hover:bg-white hover:border-slate-300 transition-all flex items-center justify-center gap-2"
-                >
-                  <Building2 size={14} /> Register New Organization
-                </button>
-
                 {/* Back to Home */}
                 {onBackToLanding && (
                   <button
@@ -649,7 +635,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onRegisterClick, onBackTo
                       </div>
                       <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-2xl">
                          <div className="w-8 h-8 rounded-xl bg-white shadow-sm flex items-center justify-center text-primary"><Download size={18} /></div>
-                         <div className="text-xs font-bold text-slate-700">2. Select <span className="text-slate-900">Install App</span> or <span className="text-slate-900">Install OpenHRApp</span></div>
+                         <div className="text-xs font-bold text-slate-700">2. Select <span className="text-slate-900">Install App</span> or <span className="text-slate-900">Install {BRAND.appName}</span></div>
                       </div>
                    </div>
                 </div>
