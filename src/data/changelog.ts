@@ -18,6 +18,7 @@ export const changelog: ChangelogRelease[] = [
     date: '2026-11-19',
     title: 'New employees always join their admin\'s organization',
     entries: [
+      { type: 'improvement', description: 'Check-in and check-out no longer take a selfie. Employees check in from their phone: the app records their location, and they tap Check In or Check Out. The camera does not open.' },
       { type: 'fix', description: 'Adding an employee no longer creates an account that is missing from the directory. Before, if the admin\'s own account was not linked to an organization, the new employee was saved with no organization and never appeared. The admin now gets a clear message instead, and after saving, the app checks that the new employee is linked to the right organization. If not, the account is removed so the admin can try again.' },
     ],
   },
