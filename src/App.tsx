@@ -19,7 +19,7 @@ import { sessionManager } from './services/session/sessionManager';
 
 // Eager: the two pages most launches show first.
 import Login from './pages/Login';
-import LandingPage from './pages/LandingPage';
+import StaffPortalLanding from './pages/StaffPortalLanding';
 import { VerifyAccount } from './pages/VerifyAccount';
 import { ResetPassword } from './pages/ResetPassword';
 import { SuspendedPage } from './components/subscription';
@@ -632,11 +632,7 @@ const AppContent: React.FC = () => {
       return <Login onLoginSuccess={login} onRegisterClick={() => setShowRegister(true)} onBackToLanding={() => setShowLanding(true)} />;
     }
     return (
-      <LandingPage
-        onLoginClick={() => setShowLanding(false)}
-        onRegisterClick={() => { setShowLanding(false); setShowRegister(true); }}
-        onLoginSuccess={login}
-      />
+      <StaffPortalLanding onLoginClick={() => setShowLanding(false)} />
     );
   }
 
