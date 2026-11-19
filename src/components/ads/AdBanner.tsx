@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { supabase } from '../../services/supabase';
+import { ADS_ENABLED } from '../../config/ads';
 
 /** Public blog slots, rendered by PublicAdBanner. All other ads go only through AdFrame. */
 export type AdSlot = 'blog-header' | 'blog-feed' | 'blog-post-top' | 'blog-post-content';
@@ -169,7 +170,10 @@ export const readAdSizeMessage = (data: unknown): AdSize2D | null => {
  * placements also show to anonymous visitors. Both need the Super Admin master switch, the
  * placement's own switch, and VITE_AD_FRAME_URL pointing at the ad subdomain.
  */
-export const AdFrame: React.FC<{ placement: AdPlacement; className?: string }> = ({ placement, className = '' }) => {
+export const AdFrame: React.FC<{ placement: AdPlacement; className?: string }> = (props) =>
+  ADS_ENABLED ? <AdFrameInner {...props} /> : null;
+
+const AdFrameInner: React.FC<{ placement: AdPlacement; className?: string }> = ({ placement, className = '' }) => {
   const { subscription } = useSubscription();
   const isPublic = AD_PLACEMENTS.find(p => p.id === placement)?.public ?? false;
   const audience = isPublic ? subscription?.showAds !== false : subscription?.showAds === true;
