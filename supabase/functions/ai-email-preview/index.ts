@@ -15,7 +15,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const FROM_EMAIL = 'OpenHRApp <noreply@openhrapp.com>';
+const FROM_EMAIL = Deno.env.get('EMAIL_FROM') ?? 'Solid Arts HR <noreply@solidarts.co.zw>';
 const APP_URL = 'https://openhrapp.com';
 
 function json(status: number, body: unknown) {
