@@ -16,7 +16,7 @@ const corsHeaders = {
 const BULK_CAMPAIGN_PREFIX = 'BULK_CAMPAIGN_';
 const MAX_BULK_RECIPIENTS = 5000;
 const SEND_BATCH_SIZE = 100;
-const FROM_EMAIL = 'OpenHRApp <noreply@openhrapp.com>';
+const FROM_EMAIL = Deno.env.get('EMAIL_FROM') ?? 'Solid Arts HR <noreply@solidarts.co.zw>';
 
 type BulkEmailFilter =
   | { kind: 'ALL_ADMINS' }
