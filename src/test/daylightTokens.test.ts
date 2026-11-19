@@ -230,9 +230,9 @@ describe('elevation is always two layers', () => {
 });
 
 describe('the app keeps its own tokens', () => {
-  it('--primary is untouched, so the logged-in app is unaffected', () => {
-    expect(css).toContain('--primary: #4a6fa5;');
-    expect(css).toContain('--primary-hover: #3b5d8c;');
+  it('--primary is the Solid Arts brand, untouched by Daylight', () => {
+    expect(css).toContain('--primary: #9C0021;');
+    expect(css).toContain('--primary-hover: #7A001A;');
   });
 
   it('no Daylight token overwrites a --primary one', () => {
