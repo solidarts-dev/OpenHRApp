@@ -294,7 +294,7 @@ async function sendSuperAdminRegistrationEmail(
     return;
   }
 
-  const FROM_EMAIL = 'OpenHRApp <noreply@openhrapp.com>';
+  const FROM_EMAIL = Deno.env.get('EMAIL_FROM') ?? 'Solid Arts HR <noreply@solidarts.co.zw>';
 
   // Filter to super admins who have an email in their profile.
   // We use profiles.email directly (backfilled by migration 0013 + handle_new_user trigger)
@@ -369,7 +369,7 @@ async function sendVerificationCodeEmail(email: string, code: string): Promise<b
       method: 'POST',
       headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'OpenHRApp <noreply@openhrapp.com>',
+        from: Deno.env.get('EMAIL_FROM') ?? 'Solid Arts HR <noreply@solidarts.co.zw>',
         to: [email],
         subject: `${code} is your OpenHRApp verification code`,
         html,
