@@ -16,6 +16,13 @@ export interface ChangelogRelease {
 export const changelog: ChangelogRelease[] = [
   {
     date: '2026-11-19',
+    title: 'Solid Arts Staff Portal branding',
+    entries: [
+      { type: 'improvement', description: 'The site now opens on a Solid Arts Staff Portal page with the company logo, crimson colours and a Log in button, in place of the OpenHRApp product page. The login screen, the app header, the browser tab and the installed phone app are branded Solid Arts HR, and the Register New Organization button is gone.' },
+    ],
+  },
+  {
+    date: '2026-11-19',
     title: 'New employees always join their admin\'s organization',
     entries: [
       { type: 'improvement', description: 'Check-in and check-out no longer take a selfie. Employees check in from their phone: the app records their location, and they tap Check In or Check Out. The camera does not open.' },
