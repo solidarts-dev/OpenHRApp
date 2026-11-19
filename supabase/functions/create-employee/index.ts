@@ -46,6 +46,12 @@ Deno.serve(async (req: Request) => {
     return jsonError(403, 'Only ADMIN or HR can create employees');
   }
 
+  // The new employee inherits the caller's organization. Without one, the profile would be
+  // saved with organization_id = null and never appear in any organization's directory.
+  if (!callerProfile.organization_id) {
+    return jsonError(400, 'Your account is not linked to an organization, so new employees cannot be added to it. Ask a Super Admin to link your account first.');
+  }
+
   try {
     const formData = await req.formData();
     const email       = formData.get('email')?.toString()?.trim().toLowerCase() ?? '';
@@ -128,6 +134,19 @@ Deno.serve(async (req: Request) => {
       // Rollback auth user
       await adminClient.auth.admin.deleteUser(userId);
       return jsonError(400, 'Failed to create profile: ' + profileInsertErr.message);
+    }
+
+    // Confirm the profile really landed in the caller's organization. If anything left it
+    // unlinked, undo the account rather than leave an employee who is invisible in the app.
+    const { data: savedProfile } = await adminClient
+      .from('profiles')
+      .select('organization_id')
+      .eq('id', userId)
+      .single();
+
+    if (savedProfile?.organization_id !== orgId) {
+      await adminClient.auth.admin.deleteUser(userId);
+      return jsonError(500, 'The employee account was created but not linked to your organization, so it was removed. Please try again.');
     }
 
     return new Response(
