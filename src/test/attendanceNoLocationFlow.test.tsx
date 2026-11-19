@@ -72,8 +72,7 @@ describe('Attendance screen without a location', () => {
     await waitFor(() => expect(submitPunch).toHaveBeenCalledWith(
       'OFFICE',
       '[NO LOCATION: timeout] Location not detected',
-      { lat: 0, lng: 0, address: 'Not captured' },
-      'selfie-data'
+      { lat: 0, lng: 0, address: 'Not captured' }
     ));
   });
 
@@ -86,8 +85,7 @@ describe('Attendance screen without a location', () => {
     await waitFor(() => expect(submitPunch).toHaveBeenCalledWith(
       'OFFICE',
       '[NO LOCATION: timeout] Location not detected [DIAG: permission=granted]',
-      { lat: 0, lng: 0, address: 'Not captured' },
-      'selfie-data'
+      { lat: 0, lng: 0, address: 'Not captured' }
     ));
   });
 
@@ -107,8 +105,7 @@ describe('Attendance screen without a location', () => {
     await waitFor(() => expect(submitPunch).toHaveBeenCalledWith(
       'FACTORY',
       '[NO LOCATION: timeout] Location not detected - Plant 2',
-      { lat: 0, lng: 0, address: 'Not captured' },
-      'selfie-data'
+      { lat: 0, lng: 0, address: 'Not captured' }
     ));
   });
 
@@ -133,8 +130,7 @@ describe('Attendance screen without a location', () => {
     expect(submitPunch).toHaveBeenCalledWith(
       'OFFICE',
       '[NO LOCATION: denied] Location not detected',
-      { lat: 0, lng: 0, address: 'Not captured' },
-      'selfie-data'
+      { lat: 0, lng: 0, address: 'Not captured' }
     );
   });
 
@@ -194,7 +190,7 @@ describe('Attendance screen without a location', () => {
     const checkOut = punchButton(/^check out$/i);
     expect(checkOut.disabled).toBe(false);
     fireEvent.click(checkOut);
-    await waitFor(() => expect(submitPunch).toHaveBeenCalledWith('OFFICE', '', null, 'selfie-data'));
+    await waitFor(() => expect(submitPunch).toHaveBeenCalledWith('OFFICE', '', null));
   });
 
   it('requires the factory input to check in when permission is blocked', async () => {
@@ -221,8 +217,7 @@ describe('Attendance screen without a location', () => {
     await waitFor(() => expect(submitPunch).toHaveBeenCalledWith(
       'FACTORY',
       '[NO LOCATION: denied] Plant 2, GPS not working',
-      { lat: 0, lng: 0, address: 'Not captured' },
-      'selfie-data'
+      { lat: 0, lng: 0, address: 'Not captured' }
     ));
   });
 
@@ -238,6 +233,6 @@ describe('Attendance screen without a location', () => {
     expect(checkOut.disabled).toBe(false);
 
     fireEvent.click(checkOut);
-    await waitFor(() => expect(submitPunch).toHaveBeenCalledWith('FACTORY', 'Finished at Plant 2', null, 'selfie-data'));
+    await waitFor(() => expect(submitPunch).toHaveBeenCalledWith('FACTORY', 'Finished at Plant 2', null));
   });
 });
