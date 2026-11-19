@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdConfig, AdSlot } from './AdBanner';
 import { sanitizeHtml } from '../../utils/sanitize';
+import { ADS_ENABLED } from '../../config/ads';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
@@ -46,7 +47,10 @@ const SLOT_SIZES: Record<string, { width: number; height: number }> = {
   'blog-post-content': { width: 300, height: 250 },
 };
 
-export const PublicAdBanner: React.FC<PublicAdBannerProps> = ({ slot, className = '', contentLength }) => {
+export const PublicAdBanner: React.FC<PublicAdBannerProps> = (props) =>
+  ADS_ENABLED ? <PublicAdBannerInner {...props} /> : null;
+
+const PublicAdBannerInner: React.FC<PublicAdBannerProps> = ({ slot, className = '', contentLength }) => {
   const [adConfig, setAdConfig] = useState<AdConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
