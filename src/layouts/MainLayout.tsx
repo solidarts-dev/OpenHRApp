@@ -5,6 +5,7 @@ import NotificationBell from '../components/notifications/NotificationBell';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { SubscriptionBanner } from '../components/subscription';
+import { BRAND } from '../config/brand';
 
 
 interface MainLayoutProps {
@@ -68,13 +69,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPath, onNaviga
               </button>
 
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                 <div className="p-1.5 bg-white rounded-xl border border-primary/20 shadow-sm overflow-hidden md:hidden flex-shrink-0">
-                    <img src="./img/logo.webp" className="w-10 h-10 object-contain" alt="Logo" />
+                 <div className="p-1.5 rounded-xl shadow-sm overflow-hidden md:hidden flex-shrink-0" style={{ backgroundColor: BRAND.colors.crimson }}>
+                    <img src={BRAND.icon} className="w-10 h-10 object-contain rounded-lg" alt={BRAND.companyName} />
                  </div>
-                 <h2 className="font-semibold text-xl tracking-tighter text-primary md:hidden truncate min-w-0">OpenHRApp</h2>
+                 <h2 className="font-semibold text-xl tracking-tighter md:hidden truncate min-w-0" style={{ color: BRAND.colors.crimson }}>{BRAND.appName}</h2>
                  <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full border bg-slate-50 text-slate-400 border-slate-100">
                    <Database size={12} />
-                   <span className="text-[9px] font-semibold uppercase tracking-widest">Cloud Node Alpha</span>
+                   <span className="text-[9px] font-semibold uppercase tracking-widest">{BRAND.companyName}</span>
                  </div>
               </div>
            </div>
