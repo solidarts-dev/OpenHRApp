@@ -16,8 +16,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const FROM_EMAIL = 'OpenHRApp <noreply@openhrapp.com>';
-const APP_URL = Deno.env.get('APP_URL') || 'https://openhrapp.com';
+const FROM_EMAIL = Deno.env.get('EMAIL_FROM') ?? 'Solid Arts HR <noreply@solidarts.co.zw>';
+const APP_URL = Deno.env.get('APP_URL') || 'https://hr.solidarts.co.zw';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -59,8 +59,8 @@ function baseTemplate(title: string, content: string): string {
       <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
         <!-- Header -->
         <tr>
-          <td style="background-color:#4f46e5;padding:24px 32px;text-align:center;">
-            <h1 style="color:#ffffff;font-size:20px;font-weight:600;margin:0;">OpenHRApp</h1>
+          <td style="background-color:#9C0021;padding:24px 32px;text-align:center;">
+            <img src="https://solidarts.co.zw/wp-content/uploads/2025/06/logo1.png" alt="Solid Arts Creativity Studio" height="40" style="height:40px;width:auto;display:inline-block;">
           </td>
         </tr>
         <!-- Body -->
@@ -74,8 +74,8 @@ function baseTemplate(title: string, content: string): string {
         <tr>
           <td style="background-color:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #e5e7eb;">
             <p style="color:#6b7280;font-size:12px;margin:0;">
-              This is an automated message from OpenHRApp.
-              <br><a href="${APP_URL}" style="color:#4f46e5;text-decoration:none;">${APP_URL}</a>
+              This is an automated message from the Solid Arts Staff Portal.
+              <br><a href="${APP_URL}" style="color:#9C0021;text-decoration:none;">${APP_URL}</a>
             </p>
           </td>
         </tr>
@@ -125,7 +125,7 @@ function statusBadge(status: string): string {
 function ctaButton(text: string, url: string): string {
   return `
 <div style="text-align:center;margin:24px 0;">
-  <a href="${url}" style="display:inline-block;background-color:#4f46e5;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;">
+  <a href="${url}" style="display:inline-block;background-color:#9C0021;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600;">
     ${text}
   </a>
 </div>`;
@@ -164,7 +164,7 @@ function buildEmployeeEmail(leave: LeaveRecord, action: LeaveAction): { subject:
           <p style="color:#4b5563;font-size:14px;">Your reporting manager has <strong style="color:#10b981;">approved</strong> your leave request. It is now pending final review by HR.</p>
           ${details}
           <p style="color:#111827;font-size:14px;font-weight:500;">Status: ${statusBadge('PENDING_HR')}</p>
-          ${leave.manager_remarks ? `<p style="color:#4b5563;font-size:13px;background-color:#f9fafb;padding:12px;border-radius:6px;border-left:3px solid #4f46e5;"><strong>Manager Remarks:</strong> ${escapeHtml(leave.manager_remarks)}</p>` : ''}
+          ${leave.manager_remarks ? `<p style="color:#4b5563;font-size:13px;background-color:#f9fafb;padding:12px;border-radius:6px;border-left:3px solid #9C0021;"><strong>Manager Remarks:</strong> ${escapeHtml(leave.manager_remarks)}</p>` : ''}
           ${ctaButton('View Leave Status', `${APP_URL}/#/leave/${leave.id}`)}
         `),
       };
@@ -281,7 +281,7 @@ function buildHrEmail(leave: LeaveRecord, action: LeaveAction, employeeName: str
           <p style="color:#4b5563;font-size:14px;">The leave request from <strong>${escapeHtml(employeeName)}</strong> has been approved by the reporting manager${managerName ? ` (<strong>${escapeHtml(managerName)}</strong>)` : ''} and now requires <strong>HR approval</strong>.</p>
           ${details}
           <p style="color:#111827;font-size:14px;font-weight:500;">Status: ${statusBadge('PENDING_HR')}</p>
-          ${leave.manager_remarks ? `<p style="color:#4b5563;font-size:13px;background-color:#f9fafb;padding:12px;border-radius:6px;border-left:3px solid #4f46e5;"><strong>Manager Remarks:</strong> ${escapeHtml(leave.manager_remarks)}</p>` : ''}
+          ${leave.manager_remarks ? `<p style="color:#4b5563;font-size:13px;background-color:#f9fafb;padding:12px;border-radius:6px;border-left:3px solid #9C0021;"><strong>Manager Remarks:</strong> ${escapeHtml(leave.manager_remarks)}</p>` : ''}
           ${ctaButton('Review & Approve', `${APP_URL}/#/leave/${leave.id}`)}
         `),
       };
