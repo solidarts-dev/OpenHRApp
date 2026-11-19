@@ -16,6 +16,15 @@ export interface ChangelogRelease {
 export const changelog: ChangelogRelease[] = [
   {
     date: '2026-11-19',
+    title: 'No ads; emails come from Solid Arts',
+    entries: [
+      { type: 'improvement', description: 'The whole app now uses the Solid Arts colours: crimson for buttons, links and the selected menu item, and navy greys in dark mode. Every text colour was measured against its background and meets the WCAG AA contrast minimum in light and dark mode. Small labels are larger (at least 10–12px), very rounded cards are less rounded, headings use the Solid Arts font, and keyboard focus always shows a clear outline.' },
+      { type: 'improvement', description: 'Ads are switched off everywhere in the portal, and the ad-network tags are removed from the page.' },
+      { type: 'improvement', description: 'Emails are sent as Solid Arts HR <noreply@solidarts.co.zw> instead of the OpenHRApp address. The address can be changed with the EMAIL_FROM secret in Supabase. Leave emails use the Solid Arts logo and colours and link to hr.solidarts.co.zw.' },
+    ],
+  },
+  {
+    date: '2026-11-19',
     title: 'Solid Arts Staff Portal branding',
     entries: [
       { type: 'improvement', description: 'The site now opens on a Solid Arts Staff Portal page with the company logo, crimson colours and a Log in button, in place of the OpenHRApp product page. The login screen, the app header, the browser tab and the installed phone app are branded Solid Arts HR, and the Register New Organization button is gone.' },
