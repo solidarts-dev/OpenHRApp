@@ -200,7 +200,8 @@ export const OrgSystem: React.FC<Props> = ({ config, onSave }) => {
               really a consent. ADMIN only; see isOrgAdmin above.
             */}
             {isOrgAdmin && consentSupported && (
-              <div className="md:col-span-2">
+              // Hidden on the Solid Arts deployment: there is no public showcase to appear in.
+              <div className="hidden">
                 <label
                   htmlFor="show-on-landing"
                   className="flex items-start gap-4 p-5 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:border-blue-200 transition-colors"
