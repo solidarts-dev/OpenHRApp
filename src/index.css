@@ -102,8 +102,8 @@
   --app-ground: #F5F6F8;
 }
 :root.dark {
-  --primary: #D0243F;
-  --primary-hover: #E0405A;
+  --primary: #C2213C;   /* white text 5.9:1; softer on navy than the old #D0243F */
+  --primary-hover: #D0243F;
   --primary-light: #3A1621;
   --primary-text: #FF8597;
   --focus-ring: #FF8597;
@@ -672,7 +672,7 @@ html.dark .dl-cta-pulse::after {
 /* Micro text. ~500 labels were set at 8–10px, mostly uppercase and widely
    tracked — below comfortable reading size on a phone. Raise the floor to 11–12px
    and pull the tracking in so uppercase labels read as words, not letters. */
-.text-\[8px\] { font-size: 10px; }
+.text-\[8px\] { font-size: 11px; }
 .text-\[9px\] { font-size: 11px; }
 .text-\[10px\] { font-size: 12px; }
 .text-\[11px\] { font-size: 12px; }
@@ -703,6 +703,47 @@ h1, h2, h3 { font-family: var(--font-display); }
 
 /* Checkboxes, radios and range sliders take the brand colour. */
 input[type="checkbox"], input[type="radio"], input[type="range"], progress { accent-color: var(--primary); }
+
+/* ===== Status colours (Nov 2026 contrast pass) =====
+   Stock Tailwind 500/600 greens, ambers and reds are 2–3.8:1 as text on white, and
+   white text on green/amber fills fails too. Light mode: darken text and fills to
+   the 700 step (all ≥ 4.5:1). */
+.text-emerald-500, .text-emerald-600, .text-green-500, .text-green-600 { color: #047857; }
+.text-amber-500, .text-amber-600, .text-yellow-600, .text-orange-500 { color: #B45309; }
+.text-orange-600 { color: #C2410C; }
+.text-rose-500, .text-red-500 { color: #E11D48; }
+.text-rose-600, .text-red-600 { color: #BE123C; }
+.text-blue-500 { color: #2563EB; }
+.bg-emerald-500, .bg-emerald-600, .bg-green-500, .bg-green-600 { background-color: #047857; }
+.bg-amber-500, .bg-amber-600, .bg-yellow-500, .bg-orange-500 { background-color: #B45309; }
+.bg-rose-500, .bg-red-500 { background-color: #E11D48; }
+
+/* Dark mode: pastel tints (bg-*-50/100) stayed bright pink/green/yellow patches on
+   navy. Turn them into low-alpha tints of the same hue, and lift the matching text
+   colours so they read on navy (all ≥ 6:1 on #15212C). Elements with their own
+   dark: colour are left alone. */
+:where(.dark) :is(.bg-rose-50, .bg-rose-100, .bg-red-50, .bg-red-100, .bg-pink-50, .bg-pink-100):where(:not([class*="dark:bg-"])) { background-color: rgba(244, 63, 94, 0.14); }
+:where(.dark) :is(.bg-emerald-50, .bg-emerald-100, .bg-green-50, .bg-green-100, .bg-teal-50, .bg-teal-100):where(:not([class*="dark:bg-"])) { background-color: rgba(16, 185, 129, 0.14); }
+:where(.dark) :is(.bg-amber-50, .bg-amber-100, .bg-yellow-50, .bg-yellow-100, .bg-orange-50, .bg-orange-100):where(:not([class*="dark:bg-"])) { background-color: rgba(245, 158, 11, 0.14); }
+:where(.dark) :is(.bg-blue-50, .bg-blue-100, .bg-sky-50, .bg-sky-100, .bg-cyan-50, .bg-cyan-100):where(:not([class*="dark:bg-"])) { background-color: rgba(59, 130, 246, 0.16); }
+:where(.dark) :is(.bg-indigo-50, .bg-indigo-100, .bg-purple-50, .bg-purple-100, .bg-violet-50, .bg-violet-100):where(:not([class*="dark:bg-"])) { background-color: rgba(167, 139, 250, 0.16); }
+
+:where(.dark) :is(.text-rose-500, .text-rose-600, .text-rose-700, .text-rose-800, .text-red-500, .text-red-600, .text-red-700, .text-red-800, .text-pink-600):where(:not([class*="dark:text-"])) { color: #FB7185; }
+:where(.dark) :is(.text-emerald-500, .text-emerald-600, .text-emerald-700, .text-emerald-800, .text-green-500, .text-green-600, .text-green-700, .text-green-800, .text-teal-600, .text-teal-700):where(:not([class*="dark:text-"])) { color: #34D399; }
+:where(.dark) :is(.text-amber-500, .text-amber-600, .text-amber-700, .text-amber-800, .text-yellow-600, .text-orange-500, .text-orange-600, .text-orange-700):where(:not([class*="dark:text-"])) { color: #FBBF24; }
+:where(.dark) :is(.text-blue-500, .text-blue-600, .text-blue-700, .text-blue-800, .text-sky-700):where(:not([class*="dark:text-"])) { color: #60A5FA; }
+:where(.dark) :is(.text-purple-500, .text-purple-600, .text-purple-700, .text-violet-600, .text-indigo-500, .text-indigo-700):where(:not([class*="dark:text-"])) { color: #C4B5FD; }
+
+/* Dark mode: semi-transparent light fills (bg-slate-50/50, bg-white/90 …) were
+   never re-coloured, so they showed as bright grey boxes on navy cards. */
+:where(.dark) :is(.bg-slate-50\/30, .bg-slate-50\/50, .bg-slate-50\/80, .bg-slate-100\/50) { background-color: rgba(255, 255, 255, 0.04); }
+:where(.dark) :is(.hover\:bg-slate-50\/50, .hover\:bg-white\/50):hover { background-color: rgba(255, 255, 255, 0.06); }
+:where(.dark) :is(.border-slate-100\/50, .border-slate-100\/80) { border-color: #2E3F51; }
+
+/* Light mode: panels that are deliberately dark (e.g. the Reports "Live Preview")
+   keep light grey text — the darker greys above are meant for white surfaces. */
+:where(:root:not(.dark)) :is(.bg-slate-900, .bg-slate-950, .bg-\[\#0f172a\], .bg-\[\#15212C\]) :is(.text-slate-400, .text-slate-500, .text-slate-600) { color: #A9B6C4; }
+:where(:root:not(.dark)) :is(.bg-slate-900, .bg-slate-950, .bg-\[\#0f172a\], .bg-\[\#15212C\]) .text-slate-300 { color: #C7D2DE; }
 }
 
 /* Keyboard focus: always visible, never colour-only (2px ring + offset). */
