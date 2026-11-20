@@ -371,41 +371,42 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-800">Check your email</p>
-                      <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                      <p className="text-sm text-slate-500 mt-1.5 leading-relaxed">
                         A password reset link was sent to <span className="font-bold text-slate-600">{forgotEmail}</span>. Check spam if you don't see it.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setShowForgot(false); setForgotStatus('idle'); setForgotEmail(''); setForgotError(''); }}
-                      className="w-full py-4 bg-primary text-white rounded-xl font-semibold text-xs uppercase tracking-[0.2em] shadow-sm hover:bg-primary-hover active:scale-[0.97] transition-all flex items-center justify-center gap-3"
+                      className="w-full py-4 bg-primary text-white rounded-xl font-semibold text-sm shadow-sm hover:bg-primary-hover active:scale-[0.97] transition-all flex items-center justify-center gap-3"
                     >
-                      Back to Login <ArrowRight size={16} />
+                      Back to log in <ArrowRight size={16} />
                     </button>
                   </div>
                 ) : (
                   <form onSubmit={handleForgotPassword} className="space-y-5">
                     <div className="text-center space-y-1">
-                      <p className="text-sm font-semibold text-slate-800">Reset Password</p>
-                      <p className="text-xs text-slate-400">Enter your email and we'll send a reset link.</p>
+                      <h2 className="text-lg font-semibold text-slate-800">Reset your password</h2>
+                      <p className="text-sm text-slate-500">Enter your work email and we'll send you a link to set a new password.</p>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest px-1">Organization Email</label>
+                      <label htmlFor="forgot-email" className="text-sm font-medium text-slate-700 px-1">Work email</label>
                       <div className="relative group">
                         <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors z-10" size={18} />
                         <input
+                          id="forgot-email"
                           type="email"
                           required
                           autoComplete="email"
                           className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 outline-none transition-all focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary-light placeholder:text-slate-300"
-                          placeholder="e.g. name@company.com"
+                          placeholder="name@solidarts.co.zw"
                           value={forgotEmail}
                           onChange={e => setForgotEmail(e.target.value)}
                         />
                       </div>
                     </div>
                     {forgotStatus === 'error' && (
-                      <div className="p-3.5 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-wider">
+                      <div role="alert" className="p-3.5 bg-rose-50 text-rose-700 rounded-xl border border-rose-100 flex items-center gap-3 text-sm font-medium">
                         <AlertCircle size={14} className="flex-shrink-0" />
                         <span>{forgotError}</span>
                       </div>
@@ -413,14 +414,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                     <button
                       type="submit"
                       disabled={forgotStatus === 'loading'}
-                      className="w-full py-4 bg-primary text-white rounded-xl font-semibold text-xs uppercase tracking-[0.2em] shadow-sm hover:bg-primary-hover active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70"
+                      className="w-full py-4 bg-primary text-white rounded-xl font-semibold text-sm shadow-sm hover:bg-primary-hover active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70"
                     >
-                      {forgotStatus === 'loading' ? <RefreshCw className="animate-spin" size={18} /> : <>Send Reset Link <ArrowRight size={16} /></>}
+                      {forgotStatus === 'loading' ? <RefreshCw className="animate-spin" size={18} /> : <>Send reset link <ArrowRight size={16} /></>}
                     </button>
                     <button
                       type="button"
                       onClick={() => { setShowForgot(false); setForgotStatus('idle'); setForgotError(''); }}
-                      className="w-full py-2.5 text-slate-400 text-[10px] font-semibold uppercase tracking-widest hover:text-primary transition-colors"
+                      className="w-full py-2.5 text-slate-600 text-sm font-medium hover:text-primary transition-colors"
                     >
                       Back to Login
                     </button>
@@ -431,7 +432,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
             <form onSubmit={handleLogin} className="space-y-6" autoComplete="on" method="post" action=".">
               <div className="space-y-5">
                 <div className="space-y-1.5">
-                  <label htmlFor="login-email" className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest px-1">Organization Email</label>
+                  <label htmlFor="login-email" className="text-sm font-medium text-slate-700 px-1">Work email</label>
                   <div className="relative group">
                     <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors z-10" size={18} />
                     <input
@@ -439,17 +440,21 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                       type="email"
                       name="email"
                       autoComplete="username"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      inputMode="email"
                       required
                       className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 outline-none transition-all focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary-light placeholder:text-slate-300"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      placeholder="e.g. name@company.com"
+                      placeholder="name@solidarts.co.zw"
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-1.5">
-                  <label htmlFor="login-password" className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest px-1">Security Credentials</label>
+                  <label htmlFor="login-password" className="text-sm font-medium text-slate-700 px-1">Password</label>
                   <div className="relative group">
                     <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors z-10" size={18} />
                     <input
@@ -461,12 +466,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                       className="w-full pl-14 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 outline-none transition-all focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary-light placeholder:text-slate-300"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      placeholder="Your secret key"
+                      placeholder="Enter your password"
                     />
                     <button 
                       type="button" 
-                      onClick={() => setShowPassword(!showPassword)} 
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-primary transition-colors z-10 p-1"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-pressed={showPassword}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-primary transition-colors z-10 p-2.5 rounded-lg"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -476,9 +483,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
 
               {error && (
                 <div className="p-3.5 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 animate-in shake space-y-2">
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-3 text-[10px] font-semibold uppercase tracking-wider">
+                  <div role="alert" className="flex flex-col md:flex-row items-start md:items-center gap-3 text-sm font-medium leading-snug">
                     <div className="flex items-center gap-3">
-                      <AlertCircle size={14} className="flex-shrink-0" />
+                      <AlertCircle size={16} className="flex-shrink-0" />
                       <span>{error}</span>
                     </div>
                     {showResend && (
@@ -493,7 +500,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                   </div>
                   {showResend && (
                     <p className="text-[11px] font-medium normal-case tracking-normal text-rose-500/90 leading-snug">
-                      Already requested a link? <span className="font-bold">Check your spam or junk folder</span> before resending — verification emails from <span className="font-mono">noreply@openhrapp.com</span> sometimes land there.
+                      Already requested a link? <span className="font-bold">Check your spam or junk folder</span> before resending — verification emails from <span className="font-mono">noreply@solidarts.co.zw</span> sometimes land there.
                     </p>
                   )}
                 </div>
@@ -503,17 +510,17 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-4 bg-primary text-white rounded-xl font-semibold text-xs uppercase tracking-[0.2em] shadow-sm hover:bg-primary-hover active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70 mt-2"
+                  className="w-full py-4 bg-primary text-white rounded-xl font-semibold text-sm shadow-sm hover:bg-primary-hover active:scale-[0.97] transition-all flex items-center justify-center gap-3 disabled:opacity-70 mt-2"
                 >
-                  {isLoading ? <RefreshCw className="animate-spin" size={18} /> : <>Continue <ArrowRight size={16} /></>}
+                  {isLoading ? <RefreshCw className="animate-spin" size={18} /> : <>Log in <ArrowRight size={16} /></>}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => { setShowForgot(true); setForgotEmail(email); setForgotStatus('idle'); setForgotError(''); }}
-                  className="w-full py-2 text-slate-400 text-[10px] font-semibold uppercase tracking-widest hover:text-primary transition-colors"
+                  className="w-full py-2 text-slate-600 text-sm font-medium hover:text-primary transition-colors"
                 >
-                  Forgot Password?
+                  Forgot password?
                 </button>
 
                 {/* Back to Home */}
@@ -521,9 +528,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                   <button
                     type="button"
                     onClick={onBackToLanding}
-                    className="w-full py-2.5 text-slate-400 text-[10px] font-semibold uppercase tracking-widest hover:text-primary transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-2.5 text-slate-600 text-sm font-medium hover:text-primary transition-colors flex items-center justify-center gap-2"
                   >
-                    <Home size={12} /> Back to Home
+                    <Home size={14} /> Back to home
                   </button>
                 )}
 
@@ -533,9 +540,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                    <button
                      type="button"
                      onClick={handleInstallClick}
-                     className="flex items-center gap-2 px-4 py-2 text-slate-400 rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:text-primary transition-colors"
+                     className="flex items-center gap-2 px-4 py-2 text-slate-600 rounded-xl text-xs font-medium hover:text-primary transition-colors"
                    >
-                     <Download size={12} /> {isIOS && !canPrompt ? 'App Guide' : 'Install App'}
+                     <Download size={12} /> {isIOS && !canPrompt ? 'How to install' : 'Install app'}
                    </button>
                    )}
 
@@ -544,7 +551,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                    <button
                      type="button"
                      onClick={handleCheckForUpdates}
-                     className="flex items-center gap-2 px-4 py-2 text-slate-400 rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:text-primary transition-colors"
+                     className="flex items-center gap-2 px-4 py-2 text-slate-600 rounded-xl text-xs font-medium hover:text-primary transition-colors"
                      title="Check for app updates without signing out"
                    >
                      <RefreshCw size={12} /> Updates
@@ -555,10 +562,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                    <button
                      type="button"
                      onClick={handleSystemReset}
-                     className="flex items-center gap-2 px-4 py-2 text-slate-400 rounded-xl text-[10px] font-semibold uppercase tracking-widest hover:text-rose-600 transition-colors"
+                     className="flex items-center gap-2 px-4 py-2 text-slate-600 rounded-xl text-xs font-medium hover:text-rose-600 transition-colors"
                      title="Clear all app data and reload (destructive — signs you out)"
                    >
-                     <RotateCcw size={12} /> Reset Cache
+                     <RotateCcw size={12} /> Reset app
                    </button>
                 </div>
               </div>
@@ -566,15 +573,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
             )} {/* end showForgot */}
           </div>
         </div>
-
-        {/* System Version */}
-        <p className="text-center mt-6 text-[8px] font-semibold text-slate-300 uppercase tracking-[0.4em]">v3.0 Multi-Tenant</p>
-      </div>
-
-      {/* Database Connection Indicator */}
-      <div className="fixed top-6 right-6 hidden md:flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-slate-100 shadow-sm">
-        <div className={`w-1.5 h-1.5 rounded-full ${isConfigured ? 'bg-emerald-500' : 'bg-rose-500'} animate-pulse`}></div>
-        <span className="text-[8px] font-semibold uppercase text-slate-500 tracking-[0.2em]">{isConfigured ? 'Node Connected' : 'No Connection'}</span>
       </div>
 
       {/* Installation Instructions Popup */}
@@ -641,7 +639,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
                 </div>
               )}
               
-              <button onClick={() => setShowInstallHelp(false)} className="w-full mt-6 py-4 bg-primary text-white rounded-2xl font-semibold uppercase text-[10px] tracking-widest shadow-lg shadow-primary-light">Close Instructions</button>
+              <button onClick={() => setShowInstallHelp(false)} className="w-full mt-6 py-4 bg-primary text-white rounded-2xl font-semibold text-sm shadow-lg shadow-primary-light">Close</button>
            </div>
         </div>
       )}
