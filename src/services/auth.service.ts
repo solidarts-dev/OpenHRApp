@@ -3,6 +3,7 @@ import { supabase, isSupabaseConfigured } from './supabase';
 import { User } from '../types';
 import { organizationService } from './organization.service';
 import { sessionManager } from './session/sessionManager';
+import { markActivity } from './session/idleTimeout';
 import { apiClient } from './api.client';
 
 // Build the app User object from a Supabase profile row
@@ -84,6 +85,9 @@ export const authService = {
       }
       return { user: null, error: raw };
     }
+
+    // Start the idle timer fresh so an old timestamp can't log the user straight out.
+    markActivity(Date.now(), true);
 
     // Fetch profile row
     const { data: profile, error: profileError } = await supabase
