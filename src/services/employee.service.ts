@@ -154,13 +154,30 @@ export const employeeService = {
       }
     }
 
-    // Self-service password change via supabase.auth.updateUser.
-    // Only works for the currently authenticated user changing their own password.
+    // Password changes. supabase.auth.updateUser() only ever changes the password of
+    // whoever is signed in, so an admin setting a password for SOMEONE ELSE must go
+    // through the admin-set-password Edge Function. (Previously this silently changed
+    // the admin's own password and left the employee's unchanged.)
     if (updates.password) {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user?.email) {
         throw new Error('No active session. Please log in again.');
       }
+
+      if (session.user.id !== id) {
+        const { data: result, error: fnError } = await supabase.functions.invoke('admin-set-password', {
+          body: { userId: id, password: updates.password },
+        });
+        if (fnError) {
+          let message = fnError.message;
+          try {
+            const errBody = await (fnError as any).context?.json?.();
+            if (errBody?.message) message = errBody.message;
+          } catch {}
+          throw new Error(`Password not changed: ${message}`);
+        }
+        if (result && result.success === false) throw new Error(`Password not changed: ${result.message}`);
+      } else {
 
       // Verify current password before allowing change
       if (updates.oldPassword) {
@@ -177,6 +194,7 @@ export const employeeService = {
         password: updates.password,
       });
       if (updateError) throw updateError;
+      }
     }
 
     console.log('[EmployeeService] Updating profile:', id, payload);
