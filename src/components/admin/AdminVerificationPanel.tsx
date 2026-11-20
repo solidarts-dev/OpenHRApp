@@ -89,88 +89,82 @@ export const AdminVerificationPanel: React.FC = () => {
     return null;
   }
 
+  // Uses the app's theme classes (not inline colours) so it follows light/dark mode.
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h2>👤 Pending User Verification</h2>
-        <p>Manually verify users who haven't clicked their email link</p>
+    <div className="bg-white text-slate-800 rounded-xl border border-slate-100 shadow-sm p-5 md:p-6 space-y-5">
+      <div>
+        <h2 className="text-lg font-semibold text-slate-900">Pending user verification</h2>
+        <p className="text-sm text-slate-500 mt-1">Manually verify users who haven't clicked their email link.</p>
       </div>
 
       {message && (
-        <div style={{
-          ...styles.message,
-          backgroundColor: message.includes('✅') ? '#d4edda' : '#f8d7da',
-          color: message.includes('✅') ? '#155724' : '#721c24'
-        }}>
+        <div
+          role="status"
+          className={`p-3 rounded-lg border text-sm font-medium ${
+            message.includes('✅')
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+              : 'bg-rose-50 border-rose-200 text-rose-700'
+          }`}
+        >
           {message}
         </div>
       )}
 
-      <div style={styles.controls}>
+      <div className="flex flex-wrap items-center gap-4">
         <button
           onClick={loadUnverifiedUsers}
           disabled={loading}
-          style={{
-            ...styles.button,
-            ...styles.buttonPrimary,
-            opacity: loading ? 0.6 : 1
-          }}
+          className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors disabled:opacity-60"
         >
-          🔄 Refresh
+          Refresh
         </button>
-        <span style={styles.count}>
-          {loading ? 'Loading...' : `${users.length} users pending verification`}
+        <span className="text-sm text-slate-600">
+          {loading ? 'Loading…' : `${users.length} users pending verification`}
         </span>
       </div>
 
       {loading ? (
-        <div style={styles.loading}>Loading unverified users...</div>
+        <div className="text-center py-8 text-sm text-slate-500">Loading unverified users…</div>
       ) : users.length === 0 ? (
-        <div style={styles.empty}>
-          <p>✅ All users have verified their emails!</p>
+        <div className="text-center py-6 rounded-lg bg-emerald-50 text-emerald-700 text-sm font-medium">
+          All users have verified their emails.
         </div>
       ) : (
-        <div style={styles.tableWrapper}>
-          <table style={styles.table}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
             <thead>
-              <tr style={styles.headerRow}>
-                <th style={styles.th}>Email</th>
-                <th style={styles.th}>Name</th>
-                <th style={styles.th}>Role</th>
-                <th style={styles.th}>Registered</th>
-                <th style={styles.th}>Action</th>
+              <tr className="bg-slate-50 border-b border-slate-200 text-left">
+                <th className="p-3 font-semibold text-slate-700">Email</th>
+                <th className="p-3 font-semibold text-slate-700">Name</th>
+                <th className="p-3 font-semibold text-slate-700">Role</th>
+                <th className="p-3 font-semibold text-slate-700">Registered</th>
+                <th className="p-3 font-semibold text-slate-700">Action</th>
               </tr>
             </thead>
             <tbody>
               {users.map(user => (
-                <tr key={user.id} style={styles.tableRow}>
-                  <td style={styles.td}>
-                    <code style={styles.email}>{user.email}</code>
+                <tr key={user.id} className="border-b border-slate-100">
+                  <td className="p-3">
+                    <code className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs">{user.email}</code>
                   </td>
-                  <td style={styles.td}>{user.name}</td>
-                  <td style={styles.td}>
-                    <span style={{
-                      ...styles.badge,
-                      backgroundColor: user.role === 'ADMIN' ? '#ffc107' : '#6c757d'
-                    }}>
+                  <td className="p-3 text-slate-800">{user.name}</td>
+                  <td className="p-3">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      user.role === 'ADMIN' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+                    }`}>
                       {user.role}
                     </span>
                   </td>
-                  <td style={styles.td} title={user.created}>
+                  <td className="p-3 text-slate-600" title={user.created}>
                     {formatDate(user.created)}
                   </td>
-                  <td style={styles.td}>
+                  <td className="p-3">
                     <button
                       onClick={() => handleVerifyUser(user.id, user.email)}
                       disabled={verifyingId === user.id}
-                      style={{
-                        ...styles.button,
-                        ...styles.buttonSmall,
-                        ...styles.buttonSuccess,
-                        opacity: verifyingId === user.id ? 0.6 : 1
-                      }}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:opacity-90 disabled:opacity-60"
                     >
-                      {verifyingId === user.id ? '⏳' : '✓'} Verify
+                      {verifyingId === user.id ? 'Verifying…' : 'Verify'}
                     </button>
                   </td>
                 </tr>
@@ -180,148 +174,15 @@ export const AdminVerificationPanel: React.FC = () => {
         </div>
       )}
 
-      <div style={styles.infoBox}>
-        <h4>ℹ️ About Manual Verification</h4>
-        <ul style={styles.infoList}>
-          <li>Use this when user hasn't received or clicked verification email</li>
-          <li>Verification email will be auto-sent to user when verified</li>
-          <li>User can then log in immediately</li>
-          <li>Email verification is preferred - use manual as fallback only</li>
-          <li>Check PocketBase Settings → Mail if most users need manual verification</li>
+      <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-slate-700">
+        <h4 className="font-semibold text-slate-900">About manual verification</h4>
+        <ul className="mt-2 pl-5 list-disc space-y-1 leading-relaxed">
+          <li>Use this when a user hasn't received or clicked the verification email.</li>
+          <li>The user can log in straight after being verified.</li>
+          <li>Email verification is preferred; use manual verification as a fallback.</li>
+          <li>If most users need manual verification, check the email (SMTP) settings in Supabase Auth.</li>
         </ul>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-  } as React.CSSProperties,
-
-  header: {
-    marginBottom: '20px'
-  } as React.CSSProperties,
-
-  message: {
-    padding: '12px 15px',
-    borderRadius: '4px',
-    marginBottom: '15px',
-    border: '1px solid'
-  } as React.CSSProperties,
-
-  controls: {
-    display: 'flex',
-    gap: '15px',
-    alignItems: 'center',
-    marginBottom: '20px'
-  } as React.CSSProperties,
-
-  button: {
-    padding: '8px 16px',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    transition: 'all 0.3s ease',
-    fontSize: '14px'
-  } as React.CSSProperties,
-
-  buttonPrimary: {
-    backgroundColor: '#667eea',
-    color: 'white'
-  } as React.CSSProperties,
-
-  buttonSuccess: {
-    backgroundColor: '#28a745',
-    color: 'white',
-    padding: '6px 12px'
-  } as React.CSSProperties,
-
-  buttonSmall: {
-    fontSize: '12px',
-    padding: '6px 12px'
-  } as React.CSSProperties,
-
-  count: {
-    color: '#666',
-    fontSize: '14px'
-  } as React.CSSProperties,
-
-  loading: {
-    textAlign: 'center',
-    padding: '30px',
-    color: '#999'
-  } as React.CSSProperties,
-
-  empty: {
-    textAlign: 'center',
-    padding: '30px',
-    backgroundColor: '#d4edda',
-    borderRadius: '4px',
-    color: '#155724'
-  } as React.CSSProperties,
-
-  tableWrapper: {
-    overflowX: 'auto',
-    marginBottom: '20px'
-  } as React.CSSProperties,
-
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: '14px'
-  } as React.CSSProperties,
-
-  headerRow: {
-    backgroundColor: '#f8f9fa',
-    borderBottom: '2px solid #dee2e6'
-  } as React.CSSProperties,
-
-  th: {
-    padding: '12px',
-    textAlign: 'left',
-    fontWeight: 'bold',
-    color: '#333'
-  } as React.CSSProperties,
-
-  tableRow: {
-    borderBottom: '1px solid #dee2e6'
-  } as React.CSSProperties,
-
-  td: {
-    padding: '12px'
-  } as React.CSSProperties,
-
-  email: {
-    backgroundColor: '#f5f5f5',
-    padding: '2px 6px',
-    borderRadius: '3px',
-    fontFamily: 'monospace',
-    fontSize: '12px'
-  } as React.CSSProperties,
-
-  badge: {
-    padding: '4px 8px',
-    borderRadius: '12px',
-    color: 'white',
-    fontSize: '12px',
-    fontWeight: 'bold'
-  } as React.CSSProperties,
-
-  infoBox: {
-    backgroundColor: '#e8f4f8',
-    border: '1px solid #b3d9e6',
-    borderRadius: '4px',
-    padding: '15px'
-  } as React.CSSProperties,
-
-  infoList: {
-    margin: '10px 0',
-    paddingLeft: '20px',
-    lineHeight: '1.8'
-  } as React.CSSProperties
 };
