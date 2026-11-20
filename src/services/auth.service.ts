@@ -56,13 +56,33 @@ export const authService = {
   async login(email: string, pass: string): Promise<{ user: User | null; error?: string }> {
     if (!isSupabaseConfigured()) return { user: null, error: 'Supabase not configured.' };
 
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
+    // Phones often capitalise the first letter of the email or add a trailing
+    // space after autocomplete, and Supabase then reports "Invalid login
+    // credentials". Normalise the email before signing in.
+    const cleanEmail = email.trim().toLowerCase();
+    let { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
       password: pass,
     });
 
+    // A password pasted from a message or typed with keyboard autocorrect can
+    // pick up a leading or trailing space. Retry once without it.
+    if (authError && pass !== pass.trim() && pass.trim().length > 0) {
+      ({ data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password: pass.trim(),
+      }));
+    }
+
     if (authError || !authData.user) {
-      return { user: null, error: authError?.message || 'Login failed.' };
+      const raw = authError?.message || 'Login failed.';
+      if (/invalid login credentials/i.test(raw)) {
+        return {
+          user: null,
+          error: 'Email or password is incorrect. Check for typos, or tap "Forgot password?" to set a new password by email.',
+        };
+      }
+      return { user: null, error: raw };
     }
 
     // Fetch profile row
@@ -117,7 +137,7 @@ export const authService = {
   },
 
   async requestPasswordReset(email: string): Promise<{ ok: boolean; error?: string }> {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/?reset=1`,
     });
     if (error) { console.error('[Auth] Password reset request failed:', error.message); return { ok: false, error: error.message }; }
