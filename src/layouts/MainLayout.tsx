@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { SubscriptionBanner } from '../components/subscription';
 import { BRAND } from '../config/brand';
+import { useIdleLogout } from '../hooks/useIdleLogout';
+import IdleWarningModal from '../components/session/IdleWarningModal';
 
 
 interface MainLayoutProps {
@@ -18,6 +20,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPath, onNaviga
   const { user, logout } = useAuth();
   const { darkMode, setDarkModePreference } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Log out after 5 minutes without activity (30-second warning first).
+  const { secondsLeft, stayLoggedIn, logoutNow } = useIdleLogout();
 
   const handleNavigate = (path: string) => {
     onNavigate(path);
@@ -33,6 +37,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPath, onNaviga
 
   return (
     <div className="flex bg-[#fcfdfe] min-h-screen relative overflow-hidden">
+      {secondsLeft !== null && (
+        <IdleWarningModal secondsLeft={secondsLeft} onStay={stayLoggedIn} onLogout={() => { void logoutNow(); }} />
+      )}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-white focus:font-semibold focus:shadow-lg"
