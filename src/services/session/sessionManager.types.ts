@@ -11,7 +11,8 @@ import { User } from '../../types';
 export type LogoutReason =
   | 'USER_INITIATED'   // explicit user action (logout button)
   | 'TOKEN_INVALID'    // hard 401/403 from server — token no longer valid
-  | 'NOT_VERIFIED';    // account not verified (handled in auth.service.login)
+  | 'NOT_VERIFIED'     // account not verified (handled in auth.service.login)
+  | 'IDLE_TIMEOUT';    // no activity for 5 minutes (src/hooks/useIdleLogout.ts)
 
 export type RefreshStatus =
   | { kind: 'idle' }
