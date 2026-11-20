@@ -21,6 +21,7 @@ import { hrService } from '../services/hrService';
 import { authService } from '../services/auth.service';
 import { isSupabaseConfigured } from '../services/supabase';
 import { useToast } from '../context/ToastContext';
+import { IDLE_LOGOUT_FLAG } from '../services/session/idleTimeout';
 import { BRAND } from '../config/brand';
 
 interface LoginProps {
@@ -50,6 +51,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
   const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  // Shown once after the idle timer logged the user out (see useIdleLogout).
+  const [idleNotice] = useState(() => {
+    try {
+      const flagged = window.sessionStorage.getItem(IDLE_LOGOUT_FLAG) === '1';
+      if (flagged) window.sessionStorage.removeItem(IDLE_LOGOUT_FLAG);
+      return flagged;
+    } catch { return false; }
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(initError || '');
   const [isLoading, setIsLoading] = useState(false);
@@ -430,6 +439,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onBackToLanding, initErro
               </div>
             ) : (
             <form onSubmit={handleLogin} className="space-y-6" autoComplete="on" method="post" action=".">
+              {idleNotice && !error && (
+                <div role="status" className="p-3.5 bg-amber-50 text-amber-900 rounded-xl border border-amber-200 flex items-start gap-3 text-sm font-medium leading-snug">
+                  <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                  <span>You were logged out after 5 minutes of inactivity. Please log in again.</span>
+                </div>
+              )}
               <div className="space-y-5">
                 <div className="space-y-1.5">
                   <label htmlFor="login-email" className="text-sm font-medium text-slate-700 px-1">Work email</label>
