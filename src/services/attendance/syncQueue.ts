@@ -261,6 +261,12 @@ export const classifySyncError = (err: any): SyncError => {
   if (err?.isAbort) {
     return { status: null, code: 'ABORT', message: 'request aborted', retryable: false };
   }
+  // Supabase/PostgREST database errors carry a 5-character SQLSTATE code but no HTTP
+  // status. They are business errors (e.g. the office-radius guard, P0001), so
+  // retrying won't help: don't treat them as network failures.
+  if (typeof err?.code === 'string' && /^[0-9A-Z]{5}$/.test(err.code)) {
+    return { status: null, code: `PG_${err.code}`, message: err?.message || 'Database error', retryable: false };
+  }
   const status: number | null = err?.status ?? err?.response?.status ?? null;
   const message: string =
     err?.response?.message || err?.data?.message || err?.message || 'Unknown error';
