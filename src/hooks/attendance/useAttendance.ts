@@ -132,10 +132,16 @@ export const useAttendance = (user: any, onFinish?: () => void) => {
         if (onFinish) onFinish();
       }, 1500);
 
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setStatus('idle');
-      showToast("Failed to submit attendance. Please try again.", "error");
+      // The database refuses Office check-ins made away from the office (migration 0058).
+      const msg: string = err?.message || '';
+      if (msg.includes('CHECKIN_OUTSIDE_OFFICE')) {
+        showToast(msg.replace(/^.*CHECKIN_OUTSIDE_OFFICE:\s*/, '') || "You're not at the office. Office check-in only works at the office.", 'warning');
+      } else {
+        showToast("Failed to submit attendance. Please try again.", "error");
+      }
     }
   };
 
