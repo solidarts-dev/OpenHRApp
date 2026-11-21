@@ -18,6 +18,7 @@ export const changelog: ChangelogRelease[] = [
     date: '2026-11-21',
     title: 'Download the app from the landing page',
     entries: [
+      { type: 'security', description: 'Office check-ins only work at the office. The check-in screen measures how far the phone is from the office locations set in Organization → Placement (Solid Arts Creativity Studio HO, 50 m) and blocks an Office check-in from further away, saying how far away the person is and offering to check the location again. A small allowance covers GPS error, but a vague network location doesn\'t count. The database refuses such check-ins too (migration 0058), so the rule holds even outside the app. Logging in still works from anywhere (for leave, notices and profile), Factory duty (work at a client\'s site) is not limited, and admins and HR can still enter attendance by hand. A refused check-in is no longer queued for endless retries.' },
       { type: 'feature', description: 'The landing page has a "Download the app" button. On Android phones and in Chrome or Edge on a computer it opens the browser\'s install prompt straight away. On iPhone and iPad it shows the Safari steps (Share → Add to Home Screen), and in other browsers it shows where to find Install app in the menu. When the app is already installed, the page says so instead.' },
     ],
   },
