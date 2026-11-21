@@ -327,6 +327,9 @@ export const attendanceService = {
       createdId = created.id;
     } catch (err: any) {
       const syncErr = classifySyncError(err);
+      // A check-in the database refused (e.g. away from the office) must not be
+      // queued for retry: it would be refused again every time.
+      if (!syncErr.retryable && syncErr.code.startsWith('PG_')) throw err;
       try {
         checkInSyncQueue.enqueue({
           kind: 'CHECK_IN',
