@@ -3,7 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, AlertTriangle, CheckCircle2, MapPin, LogOut } from 'lucide-react';
 
 // Hooks
-import { useGeoLocation } from '../hooks/attendance/useGeoLocation';
+import { useGeoLocation, MAX_ACCURACY_TOLERANCE_M } from '../hooks/attendance/useGeoLocation';
+
+const formatDistance = (m: number) => (m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${Math.round(m)} m`);
 import { useAttendance } from '../hooks/attendance/useAttendance';
 import { useSubscription } from '../context/SubscriptionContext';
 import { useToast } from '../context/ToastContext';
@@ -29,7 +31,8 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
   } = useAttendance(user, onFinish);
 
   const {
-    location, isLocating, error: locationError, failure: locationFailure, diagnostics: locationDiagnostics, detectLocation
+    location, isLocating, error: locationError, failure: locationFailure, diagnostics: locationDiagnostics, detectLocation,
+    geofence
   } = useGeoLocation();
 
   // Subscription check for write access
@@ -44,8 +47,13 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
 
   // Check-out does not save a location, so it never waits for one.
   const isCheckOut = !!activeRecord && !activeRecord.checkOut;
+  // Office check-ins must be made within an office radius (Organization → Placement).
+  // Factory duty is work at a client's site, so it is not limited to the office.
+  const officeFenceOn = dutyType === 'OFFICE' && !isCheckOut && (appConfig?.officeLocations?.length ?? 0) > 0;
+  const outsideOffice = officeFenceOn && !!location && !!geofence && !geofence.inside;
+  const imprecise = !!geofence && geofence.accuracy > MAX_ACCURACY_TOLERANCE_M;
   const canSkipLocation = !isCheckOut && !location && !isLocating && !!locationError
-    && appConfig?.allowCheckInWithoutLocation !== false;
+    && appConfig?.allowCheckInWithoutLocation !== false && !officeFenceOn;
   const withoutLocation = canSkipLocation && skipLocationChosen;
   const locationReady = isCheckOut || !!location || withoutLocation;
   // The auto-written remark does not count as the mandatory factory details.
@@ -99,6 +107,11 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
 
     if (withoutLocation && !remarks.trim()) {
       showToast('Mandatory: Please enter why your location is not available.', 'warning');
+      return;
+    }
+
+    if (outsideOffice && geofence) {
+      showToast(`You're about ${formatDistance(geofence.distance)} from ${geofence.office}. Office check-in only works within ${geofence.radius} m.`, 'warning');
       return;
     }
 
@@ -158,6 +171,28 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
         </div>
       </div>
 
+      {/* Outside the office radius */}
+      {outsideOffice && geofence && status === 'idle' && (
+        <div role="alert" className="mx-4 mb-2 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm flex items-start gap-3">
+          <MapPin className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-semibold">You're not at the office</p>
+            <p className="mt-0.5 leading-snug">
+              You're about {formatDistance(geofence.distance)} from {geofence.office}. Office check-in only works within {geofence.radius} m.
+              {imprecise && ` Your phone's location is approximate (±${formatDistance(geofence.accuracy)}): turn on precise location or step outside, then try again.`}
+            </p>
+            <button
+              type="button"
+              onClick={() => detectLocation(true)}
+              disabled={isLocating}
+              className="mt-2 px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 text-xs font-semibold disabled:opacity-60"
+            >
+              {isLocating ? 'Checking…' : 'Check my location again'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Subscription Warning Banner */}
       {!canPunch && (
         <div className="px-4 py-3 bg-red-50 border-t border-red-200 flex items-center gap-2 text-red-700">
@@ -181,7 +216,7 @@ const Attendance: React.FC<AttendanceProps> = ({ user, autoStart, onFinish }) =>
         canSkipLocation={canSkipLocation}
         withoutLocation={withoutLocation}
         onToggleWithoutLocation={handleToggleWithoutLocation}
-        isDisabled={!canPunch || !locationReady || (!isCheckOut && isLocating) || status !== 'idle' || factoryInputMissing || (withoutLocation && !remarks.trim())}
+        isDisabled={!canPunch || outsideOffice || !locationReady || (!isCheckOut && isLocating) || status !== 'idle' || factoryInputMissing || (withoutLocation && !remarks.trim())}
       />
 
     </div>
