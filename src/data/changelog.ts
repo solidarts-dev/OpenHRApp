@@ -15,6 +15,13 @@ export interface ChangelogRelease {
 
 export const changelog: ChangelogRelease[] = [
   {
+    date: '2026-11-21',
+    title: 'Download the app from the landing page',
+    entries: [
+      { type: 'feature', description: 'The landing page has a "Download the app" button. On Android phones and in Chrome or Edge on a computer it opens the browser\'s install prompt straight away. On iPhone and iPad it shows the Safari steps (Share → Add to Home Screen), and in other browsers it shows where to find Install app in the menu. When the app is already installed, the page says so instead.' },
+    ],
+  },
+  {
     date: '2026-11-20',
     title: 'Easier log in',
     entries: [
