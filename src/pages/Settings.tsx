@@ -54,7 +54,7 @@ const Settings: React.FC<SettingsProps> = ({ user, onBack }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const isAdmin = user.role === 'ADMIN';
+  const isAdmin = user.role === 'ADMIN' || user.role === 'HR'; // HR has the same admin tools
   const [myShift, setMyShift] = useState<Shift | null>(null);
   const [myTeamName, setMyTeamName] = useState<string>('No Team');
 
