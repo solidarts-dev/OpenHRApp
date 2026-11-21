@@ -1,5 +1,5 @@
-import React from 'react';
-import { LogIn, MapPin, CalendarCheck, Bell, Smartphone, Phone, Mail } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { LogIn, MapPin, CalendarCheck, Bell, Smartphone, Phone, Mail, Download, CheckCircle2, Share } from 'lucide-react';
 import { BRAND } from '../config/brand';
 
 interface Props {
@@ -12,9 +12,58 @@ const features = [
   { icon: Bell, title: 'Stay informed', text: 'Company announcements and notifications as they happen.' },
 ];
 
+type InstallState = 'prompt' | 'ios' | 'installed' | 'manual';
+
+/**
+ * Install support. index.html stores Chrome/Edge/Android's beforeinstallprompt event
+ * on window.deferredPWAPrompt and fires 'pwa-install-available' / 'pwa-installed'.
+ * iPhone/iPad Safari has no install prompt, so we show the Share → Add to Home Screen steps.
+ */
+function useInstall() {
+  const getState = (): InstallState => {
+    const standalone = window.matchMedia?.('(display-mode: standalone)').matches || (navigator as any).standalone === true;
+    if (standalone) return 'installed';
+    if ((window as any).deferredPWAPrompt) return 'prompt';
+    const ua = navigator.userAgent;
+    const ios = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Macintosh') && 'ontouchend' in document);
+    return ios ? 'ios' : 'manual';
+  };
+  const [state, setState] = useState<InstallState>(getState);
+  useEffect(() => {
+    const refresh = () => setState(getState());
+    window.addEventListener('pwa-install-available', refresh);
+    window.addEventListener('pwa-installed', refresh);
+    return () => {
+      window.removeEventListener('pwa-install-available', refresh);
+      window.removeEventListener('pwa-installed', refresh);
+    };
+  }, []);
+  const install = async () => {
+    const evt = (window as any).deferredPWAPrompt;
+    if (!evt) return false;
+    evt.prompt();
+    try {
+      const choice = await evt.userChoice;
+      if (choice?.outcome === 'accepted') {
+        (window as any).deferredPWAPrompt = null;
+        setState('installed');
+      }
+    } catch { /* ignore */ }
+    return true;
+  };
+  return { state, install };
+}
+
 /** Branded landing page for Solid Arts staff. Replaces the OpenHRApp marketing site. */
 const StaffPortalLanding: React.FC<Props> = ({ onLoginClick }) => {
   const { colors } = BRAND;
+  const { state: installState, install } = useInstall();
+  const [showSteps, setShowSteps] = useState(false);
+  const onInstall = async () => {
+    if (installState === 'prompt' && (await install())) return;
+    setShowSteps(true);
+    document.getElementById('install')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-800" style={{ fontFamily: "'Libre Franklin', Inter, system-ui, sans-serif" }}>
       {/* Header */}
@@ -55,6 +104,16 @@ const StaffPortalLanding: React.FC<Props> = ({ onLoginClick }) => {
           >
             <LogIn size={18} /> Log in to the portal
           </button>
+          {installState !== 'installed' && (
+            <div className="mt-4">
+              <button
+                onClick={onInstall}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-white/40 text-white font-semibold text-sm hover:bg-white/10 transition-colors"
+              >
+                <Download size={16} /> Download the app
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -71,17 +130,58 @@ const StaffPortalLanding: React.FC<Props> = ({ onLoginClick }) => {
         ))}
       </section>
 
-      {/* Install tip */}
-      <section className="max-w-5xl mx-auto w-full px-4 sm:px-6 pb-14">
-        <div className="rounded-xl p-6 flex items-start gap-4" style={{ backgroundColor: `${colors.gold}1A` }}>
-          <Smartphone size={24} className="shrink-0 mt-0.5" style={{ color: colors.crimson }} />
-          <div>
-            <h3 className="font-bold" style={{ color: colors.navy }}>Put the portal on your home screen</h3>
-            <p className="mt-1 text-sm text-slate-600">
-              Android (Chrome): open the menu ⋮ and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.
-              iPhone (Safari): tap Share, then <strong>Add to Home Screen</strong>.
-            </p>
+      {/* Install */}
+      <section id="install" className="max-w-5xl mx-auto w-full px-4 sm:px-6 pb-14">
+        <div className="rounded-xl p-6 flex flex-col sm:flex-row sm:items-center gap-5" style={{ backgroundColor: `${colors.gold}1A` }}>
+          <Smartphone size={28} className="shrink-0" style={{ color: colors.crimson }} />
+          <div className="flex-1">
+            <h3 className="font-bold" style={{ color: colors.navy }}>
+              {installState === 'installed' ? 'The app is installed' : 'Get the Solid Arts HR app'}
+            </h3>
+            {installState === 'installed' ? (
+              <p className="mt-1 text-sm text-slate-600 flex items-center gap-1.5">
+                <CheckCircle2 size={16} className="text-emerald-600" /> You're using the installed app.
+              </p>
+            ) : installState === 'ios' || showSteps ? (
+              <ol className="mt-2 text-sm text-slate-700 space-y-1 list-decimal pl-5">
+                {installState === 'ios' ? (
+                  <>
+                    <li>Open this page in <strong>Safari</strong>.</li>
+                    <li>Tap the <strong>Share</strong> button <Share size={14} className="inline -mt-0.5" aria-hidden="true" />.</li>
+                    <li>Choose <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li>
+                  </>
+                ) : (
+                  <>
+                    <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong>.</li>
+                    <li>Open the browser menu <strong>⋮</strong>.</li>
+                    <li>Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
+                  </>
+                )}
+              </ol>
+            ) : (
+              <p className="mt-1 text-sm text-slate-600">
+                Install it on your phone or computer: it opens like a normal app, straight to the staff portal.
+              </p>
+            )}
           </div>
+          {installState === 'prompt' && (
+            <button
+              onClick={onInstall}
+              className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md text-white font-semibold text-sm"
+              style={{ backgroundColor: colors.crimson }}
+            >
+              <Download size={16} /> Install app
+            </button>
+          )}
+          {installState === 'manual' && !showSteps && (
+            <button
+              onClick={() => setShowSteps(true)}
+              className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md text-white font-semibold text-sm"
+              style={{ backgroundColor: colors.crimson }}
+            >
+              <Download size={16} /> How to install
+            </button>
+          )}
         </div>
       </section>
 
