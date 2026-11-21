@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { OFFICE_LOCATIONS } from '../../constants';
 import { hrService } from '../../services/hrService';
 import { OfficeLocation } from '../../types';
+import { evaluateGeofence, type GeofenceResult } from '../../utils/geofence';
 import { LocationFailure } from '../../utils/attendanceUtils';
 import { collectLocationDiagnostics } from '../../utils/locationDiagnostics';
 
@@ -52,6 +53,9 @@ const getLocationFailure = (err: any): LocationFailure => {
   }
 };
 
+export { MAX_ACCURACY_TOLERANCE_M, distanceMetres, evaluateGeofence } from '../../utils/geofence';
+export type { GeofenceResult } from '../../utils/geofence';
+
 export const useGeoLocation = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -59,6 +63,11 @@ export const useGeoLocation = () => {
   const [failure, setFailure] = useState<LocationFailure | null>(null);
   const [diagnostics, setDiagnostics] = useState<string | null>(null);
   const [geoFences, setGeoFences] = useState<OfficeLocation[]>(OFFICE_LOCATIONS);
+  // Nearest configured office and whether the reading is inside its radius.
+  // null until a position is known. `configured` is false when the organization
+  // has no office locations of its own (then nothing is enforced).
+  const [geofence, setGeofence] = useState<GeofenceResult | null>(null);
+  const [fencesFromConfig, setFencesFromConfig] = useState(false);
   const watchIdRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -67,6 +76,7 @@ export const useGeoLocation = () => {
         const config = await hrService.getConfig();
         if (config.officeLocations && config.officeLocations.length > 0) {
           setGeoFences(config.officeLocations);
+          setFencesFromConfig(true);
         }
       } catch (e) {
         // Fallback to constants is already set
@@ -75,15 +85,9 @@ export const useGeoLocation = () => {
     loadConfig();
   }, []);
 
-  const matchOffice = (lat: number, lng: number, fences: OfficeLocation[]): string | null => {
-    for (const office of fences) {
-      const latDiff = Math.abs(office.lat - lat);
-      const lngDiff = Math.abs(office.lng - lng);
-      if (latDiff < 0.005 && lngDiff < 0.005) {
-        return office.name;
-      }
-    }
-    return null;
+  const matchOffice = (lat: number, lng: number, fences: OfficeLocation[], accuracy = 0): string | null => {
+    const r = evaluateGeofence(lat, lng, accuracy, fences);
+    return r && r.inside ? r.office : null;
   };
 
   const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
@@ -120,8 +124,8 @@ export const useGeoLocation = () => {
     }
   };
 
-  const resolveAddress = async (lat: number, lng: number, fences: OfficeLocation[]): Promise<string> => {
-    const officeName = matchOffice(lat, lng, fences);
+  const resolveAddress = async (lat: number, lng: number, fences: OfficeLocation[], accuracy = 0): Promise<string> => {
+    const officeName = matchOffice(lat, lng, fences, accuracy);
     if (officeName) return officeName;
     return await reverseGeocode(lat, lng);
   };
@@ -169,7 +173,9 @@ export const useGeoLocation = () => {
 
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
-      const address = await resolveAddress(lat, lng, geoFences);
+      const accuracy = pos.coords.accuracy || 0;
+      setGeofence(evaluateGeofence(lat, lng, accuracy, geoFences));
+      const address = await resolveAddress(lat, lng, geoFences, accuracy);
       setLocation({ lat, lng, address });
     } catch (err: any) {
       console.error('Geolocation detection failed:', err);
@@ -192,7 +198,9 @@ export const useGeoLocation = () => {
       pos => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        resolveAddress(lat, lng, geoFences).then(address => {
+        const accuracy = pos.coords.accuracy || 0;
+        setGeofence(evaluateGeofence(lat, lng, accuracy, geoFences));
+        resolveAddress(lat, lng, geoFences, accuracy).then(address => {
           setLocation({ lat, lng, address });
         });
       },
@@ -208,5 +216,8 @@ export const useGeoLocation = () => {
     }
   }, []);
 
-  return { location, isLocating, error, failure, diagnostics, detectLocation, watchLocation, clearWatch };
+  return {
+    location, isLocating, error, failure, diagnostics, detectLocation, watchLocation, clearWatch,
+    geofence: fencesFromConfig ? geofence : null,
+  };
 };
