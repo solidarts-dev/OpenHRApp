@@ -74,8 +74,9 @@ const StaffPortalLanding: React.FC<Props> = ({ onLoginClick }) => {
           </a>
           <button
             onClick={onLoginClick}
-            className="shrink-0 inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-md bg-white font-semibold text-sm hover:bg-slate-100 transition-colors"
-            style={{ color: colors.crimson }}
+            className="shrink-0 inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-md font-semibold text-sm hover:opacity-90 transition-opacity"
+            // Inline white so dark mode's bg-white override doesn't turn it navy on the crimson bar.
+            style={{ color: colors.crimson, backgroundColor: '#FFFFFF' }}
           >
             <LogIn size={16} /> Log in
           </button>
