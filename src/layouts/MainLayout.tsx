@@ -76,10 +76,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, currentPath, onNaviga
               </button>
 
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                 <div className="p-1.5 rounded-xl shadow-sm overflow-hidden md:hidden flex-shrink-0" style={{ backgroundColor: BRAND.colors.crimson }}>
-                    <img src={BRAND.icon} className="w-10 h-10 object-contain rounded-lg" alt={BRAND.companyName} />
+                 <div className="px-3 py-2 rounded-xl shadow-sm md:hidden flex-shrink-0 flex items-center" style={{ backgroundColor: BRAND.colors.crimson }}>
+                    <img src={BRAND.logoWhite} className="h-7 w-auto object-contain" alt={BRAND.companyName} />
                  </div>
-                 <h2 className="font-semibold text-xl tracking-tighter md:hidden truncate min-w-0" style={{ color: BRAND.colors.crimson }}>{BRAND.appName}</h2>
                  <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full border bg-slate-50 text-slate-400 border-slate-100">
                    <Database size={12} />
                    <span className="text-[9px] font-semibold uppercase tracking-widest">{BRAND.companyName}</span>
