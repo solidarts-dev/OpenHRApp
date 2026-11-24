@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { BRAND } from '../config/brand';
 import {
   LayoutDashboard,
   Users,
@@ -59,8 +60,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate, onLogout, ro
 
   return (
     <aside className="w-80 bg-white h-screen flex flex-col border-r border-slate-100 shadow-sm relative z-50">
+      {/* Brand bar: Solid Arts white logo on crimson (same in light and dark mode) */}
+      <div className="h-16 shrink-0 flex items-center px-6" style={{ backgroundColor: BRAND.colors.crimson }}>
+        <img src={BRAND.logoWhite} alt={BRAND.companyName} className="h-9 w-auto object-contain" />
+      </div>
+
       {/* Profile Header */}
-      <div className="p-10 pb-8 flex flex-col items-center text-center">
+      <div className="px-10 pt-6 pb-6 flex flex-col items-center text-center">
         <div className="relative mb-4">
           <img
             src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=random`}
@@ -71,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate, onLogout, ro
         </div>
         <h2 className="text-xl font-semibold text-slate-900 leading-tight">{user?.name || 'User Name'}</h2>
         <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-tight">{user?.designation || 'Specialist'}</p>
-        <div className="w-full h-px bg-slate-50 mt-8"></div>
+        <div className="w-full h-px bg-slate-50 mt-6"></div>
       </div>
 
       {/* Navigation + Sign Out (all scrollable) */}
