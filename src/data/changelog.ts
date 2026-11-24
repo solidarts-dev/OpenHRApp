@@ -15,6 +15,13 @@ export interface ChangelogRelease {
 
 export const changelog: ChangelogRelease[] = [
   {
+    date: '2026-11-24',
+    title: 'Solid Arts logo in the app',
+    entries: [
+      { type: 'improvement', description: 'The white Solid Arts logo now sits on a crimson bar at the top of the sidebar on computers, and in the phone header in place of the small icon and app name. The organization is also set to a permanent plan: the trial countdown banner is gone and nothing expires.' },
+    ],
+  },
+  {
     date: '2026-11-21',
     title: 'Download the app from the landing page',
     entries: [
